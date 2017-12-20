@@ -54,33 +54,47 @@ public class KnockKnockClient {
                 new BufferedReader(new InputStreamReader(System.in));
 
             String fromServer;
-            String fromUser;
+            
+            String max_size;
+            String max_power;
             String msg;
 
             while ((fromServer = in.readLine()) != null) {
                 System.out.println("Server: " + fromServer);
                 if (fromServer.equals("Bye."))
                     break;
-                
-                fromUser = stdIn.readLine();
-                if (fromUser != null) {
-                    System.out.println("Client: " + fromUser);
 
-                    int size = 4;
+                System.out.print("Please enter the max size of the matrice: ");
+                max_size = stdIn.readLine();
+
+                System.out.print("Please enter the max difficulty: ");
+                max_power = stdIn.readLine();
+
+                if(max_size.equals("") || max_power.equals("")){
+                    System.out.println("One of the two values is wrong, retry...");
+                }
+                else if (max_size != null && max_power != null) {
+                    int size = (int) Math.ceil(Math.random()*Integer.parseInt(max_size));
                     double[][] matrice = new double[size][size];
 
-                    msg = size+" "+fromUser+" [";
+                    //int count = 2;
+                    //currently we don't take 0 and 1 into account for the power value
+                    int power = (int) Math.ceil(Math.random()*(Integer.parseInt(max_power)-1)+1);
+
+                    msg = size+" "+power+" ";
                     for(int i = 0; i < size; i++){
                         for(int j = 0; j < size; j++){
-                            matrice[i][j] = i * j;
-                            //matrix[i][j] = Math.random()*100;
+                            //matrice[i][j] = count;
+                            
+                            matrice[i][j] = Math.ceil(Math.random()*10);
                             if(j == size-1 && i == size-1){
                                 //End of Matrix
-                                msg = msg+matrice[i][j]+"]";
+                                msg = msg+matrice[i][j];
                             }
                             else{
                                 msg = msg+matrice[i][j]+",";
                             }
+                            //count++;
 
                         }
                     }
