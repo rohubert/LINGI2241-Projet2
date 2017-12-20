@@ -31,6 +31,7 @@
 
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.TimeUnit;
 
 public class KnockKnockClient {
     public static void main(String[] args) throws IOException {
@@ -43,72 +44,88 @@ public class KnockKnockClient {
 
         String hostName = args[0];
         int portNumber = Integer.parseInt(args[1]);
+        boolean firstTime = true;
+        
+        String max_size = "";
+        String max_power = "";
+        while(true){
+            try (
+                Socket kkSocket = new Socket(hostName, portNumber);
+                PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(
+                    new InputStreamReader(kkSocket.getInputStream()));
+            ) {
+                BufferedReader stdIn =
+                    new BufferedReader(new InputStreamReader(System.in));
 
-        try (
-            Socket kkSocket = new Socket(hostName, portNumber);
-            PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(
-                new InputStreamReader(kkSocket.getInputStream()));
-        ) {
-            BufferedReader stdIn =
-                new BufferedReader(new InputStreamReader(System.in));
+                String fromServer;
+                
+                String msg;
 
-            String fromServer;
-            
-            String max_size;
-            String max_power;
-            String msg;
+                if ((fromServer = in.readLine()) != null) {
+                    System.out.println("Server: " + fromServer);
+                    if (fromServer.equals("Bye."))
+                        break;
 
-            while ((fromServer = in.readLine()) != null) {
-                System.out.println("Server: " + fromServer);
-                if (fromServer.equals("Bye."))
-                    break;
+                    if(firstTime){
+                        System.out.print("Please enter the max size of the matrice: ");
+                        max_size = stdIn.readLine();
 
-                System.out.print("Please enter the max size of the matrice: ");
-                max_size = stdIn.readLine();
+                        System.out.print("Please enter the max difficulty: ");
+                        max_power = stdIn.readLine();
+                        firstTime = false;
+                    }
+                    else{
+                        double t = Math.random()*10;
+                        long v = Math.round(t);
+                        //System.out.println("time: "+t+", in long: "+v);
+                        TimeUnit.SECONDS.sleep(v);
 
-                System.out.print("Please enter the max difficulty: ");
-                max_power = stdIn.readLine();
-
-                if(max_size.equals("") || max_power.equals("")){
-                    System.out.println("One of the two values is wrong, retry...");
-                }
-                else if (max_size != null && max_power != null) {
-                    int size = (int) Math.ceil(Math.random()*Integer.parseInt(max_size));
-                    double[][] matrice = new double[size][size];
-
-                    //int count = 2;
-                    //currently we don't take 0 and 1 into account for the power value
-                    int power = (int) Math.ceil(Math.random()*(Integer.parseInt(max_power)-1)+1);
-
-                    msg = size+" "+power+" ";
-                    for(int i = 0; i < size; i++){
-                        for(int j = 0; j < size; j++){
-                            //matrice[i][j] = count;
-                            
-                            matrice[i][j] = Math.ceil(Math.random()*10);
-                            if(j == size-1 && i == size-1){
-                                //End of Matrix
-                                msg = msg+matrice[i][j];
-                            }
-                            else{
-                                msg = msg+matrice[i][j]+",";
-                            }
-                            //count++;
-
-                        }
                     }
 
-                    out.println(msg);
+                    if(max_size.equals("") || max_power.equals("")){
+                        System.out.println("One of the two values is wrong, retry...");
+                    }
+                    else if (max_size != null && max_power != null) {
+                        int size = (int) Math.ceil(Math.random()*Integer.parseInt(max_size));
+                        double[][] matrice = new double[size][size];
+
+                        //int count = 2;
+                        //currently we don't take 0 and 1 into account for the power value
+                        int power = (int) Math.ceil(Math.random()*(Integer.parseInt(max_power)-1)+1);
+
+                        msg = size+" "+power+" ";
+                        for(int i = 0; i < size; i++){
+                            for(int j = 0; j < size; j++){
+                                //matrice[i][j] = count;
+                                
+                                matrice[i][j] = Math.ceil(Math.random()*10);
+                                if(j == size-1 && i == size-1){
+                                    //End of Matrix
+                                    msg = msg+matrice[i][j];
+                                }
+                                else{
+                                    msg = msg+matrice[i][j]+",";
+                                }
+                                //count++;
+
+                            }
+                        }
+
+                        out.println(msg);
+                    }
                 }
+            } catch (UnknownHostException e) {
+                System.err.println("Don't know about host " + hostName);
+                System.exit(1);
+            } catch (IOException e) {
+                System.err.println("Couldn't get I/O for the connection to " +
+                    hostName);
+                System.exit(1);
             }
-        } catch (UnknownHostException e) {
-            System.err.println("Don't know about host " + hostName);
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to " +
-                hostName);
-            System.exit(1);
+            catch (Exception e){
+                System.out.println("Error: "+e);
+            }
         }
     }
 }
