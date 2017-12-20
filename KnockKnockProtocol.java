@@ -27,7 +27,11 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<<<<<<< HEAD
+ */
+=======
  */ 
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
 
 import java.net.*;
 import java.io.*;
@@ -50,7 +54,11 @@ public class KnockKnockProtocol {
                                  "Is there an owl in here?",
                                  "Is there an echo in here?" };
 
+<<<<<<< HEAD
+    /*public String processInput(String theInput) {
+=======
     public String processInput(String theInput) {
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
         String theOutput = null;
 
         if (state == WAITING) {
@@ -69,9 +77,15 @@ public class KnockKnockProtocol {
                 theOutput = answers[currentJoke] + " Want another? (y/n)";
                 state = ANOTHER;
             } else {
+<<<<<<< HEAD
+                theOutput = "You're supposed to say \"" +
+			    clues[currentJoke] +
+			    " who?\"" +
+=======
                 theOutput = "You're supposed to say \"" + 
 			    clues[currentJoke] + 
 			    " who?\"" + 
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
 			    "! Try again. Knock! Knock!";
                 state = SENTKNOCKKNOCK;
             }
@@ -89,5 +103,67 @@ public class KnockKnockProtocol {
             }
         }
         return theOutput;
+<<<<<<< HEAD
+    }*/
+    public String processInput(String theInput)
+    {
+        // System.out.println(theInput);
+        // String ret = new String();
+        // ret += ("you said : ");
+        // ret += (theInput);
+        // return ret;
+        String theOutput = null;
+        if (state == WAITING) {
+            theOutput = "Knock! Knock!";
+            state = SENTKNOCKKNOCK;
+        }
+        else if (state == SENTKNOCKKNOCK) {
+            char[] b = theInput.toCharArray();
+
+            String n = new String();
+            int i = 0;
+            while(b[i]!=(' ')){
+                n += b[i];
+
+                i++;
+            }
+            System.out.println(n);
+            System.out.println(i);
+
+            i++;
+
+            String p = new String();
+            while(b[i]!=(' ')){
+                p += b[i];
+
+                i++;
+            }
+            System.out.println(p);
+            System.out.println(i);
+
+            i++;
+            i++;
+            String m = new String();
+            while(b[i]!=']')
+            {
+                m+=b[i];
+                i++;
+            }
+            System.out.println(m);
+            String[] matrice = m.split(",");
+            for(int j = 0; j<matrice.length; j++)
+            {
+                System.out.println(matrice[j]);
+            }
+            String tarace = "ta race";
+            return tarace;
+        }
+        return theOutput;
+    }
+
+
+}
+=======
     }
 }
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049

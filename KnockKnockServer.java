@@ -27,14 +27,22 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<<<<<<< HEAD
+ */
+=======
  */ 
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
 
 import java.net.*;
 import java.io.*;
 
 public class KnockKnockServer {
     public static void main(String[] args) throws IOException {
+<<<<<<< HEAD
+
+=======
         
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
         if (args.length != 1) {
             System.err.println("Usage: java KnockKnockServer <port number>");
             System.exit(1);
@@ -42,7 +50,11 @@ public class KnockKnockServer {
 
         int portNumber = Integer.parseInt(args[0]);
 
+<<<<<<< HEAD
+        try (
+=======
         try ( 
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
             ServerSocket serverSocket = new ServerSocket(portNumber);
             Socket clientSocket = serverSocket.accept();
             PrintWriter out =
@@ -50,15 +62,25 @@ public class KnockKnockServer {
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(clientSocket.getInputStream()));
         ) {
+<<<<<<< HEAD
+
+            String inputLine, outputLine;
+
+=======
         
             String inputLine, outputLine;
             
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
             // Initiate conversation with client
             KnockKnockProtocol kkp = new KnockKnockProtocol();
             outputLine = kkp.processInput(null);
             out.println(outputLine);
 
             while ((inputLine = in.readLine()) != null) {
+<<<<<<< HEAD
+                System.out.println(inputLine);
+=======
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
                 outputLine = kkp.processInput(inputLine);
                 out.println(outputLine);
                 if (outputLine.equals("Bye."))
@@ -70,4 +92,8 @@ public class KnockKnockServer {
             System.out.println(e.getMessage());
         }
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
