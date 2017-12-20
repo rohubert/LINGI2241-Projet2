@@ -52,8 +52,10 @@ public class KnockKnockClient {
         ) {
             BufferedReader stdIn =
                 new BufferedReader(new InputStreamReader(System.in));
+
             String fromServer;
             String fromUser;
+            String msg;
 
             while ((fromServer = in.readLine()) != null) {
                 System.out.println("Server: " + fromServer);
@@ -63,7 +65,27 @@ public class KnockKnockClient {
                 fromUser = stdIn.readLine();
                 if (fromUser != null) {
                     System.out.println("Client: " + fromUser);
-                    out.println(fromUser);
+
+                    int size = 4;
+                    double[][] matrice = new double[size][size];
+
+                    msg = size+" "+fromUser+" [";
+                    for(int i = 0; i < size; i++){
+                        for(int j = 0; j < size; j++){
+                            matrice[i][j] = i * j;
+                            //matrix[i][j] = Math.random()*100;
+                            if(j == size-1 && i == size-1){
+                                //End of Matrix
+                                msg = msg+matrice[i][j]+"]";
+                            }
+                            else{
+                                msg = msg+matrice[i][j]+",";
+                            }
+
+                        }
+                    }
+
+                    out.println(msg);
                 }
             }
         } catch (UnknownHostException e) {
