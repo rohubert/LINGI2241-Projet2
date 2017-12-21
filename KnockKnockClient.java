@@ -55,18 +55,18 @@ public class KnockKnockClient {
         long time = 0;
         //For each line, the first column will be the response time.
         //The second column will be the time between a first request and the following one.
-        long[][] performances_matrice = new long[max_request_number][2];
+        long[][] performances_matrice = new long[max_request_number][3];
 
-        String max_size = "10";
-        String max_power = "10";
+        String max_size = "50";
+        String max_power = "20";
 
         while(done && current_request_number < max_request_number){
             try{
                 //First, wait before trying to connect again and request a computation
-                //double t = Math.random()*10;
-                //long v = Math.round(t);
+                double t = Math.random()*500;
+                long v = Math.round(t);
                 //System.out.println("time: "+t+", in long: "+v);
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.MILLISECONDS.sleep(v);
                 try (
                     Socket kkSocket = new Socket(hostName, portNumber);
                     PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
@@ -84,7 +84,6 @@ public class KnockKnockClient {
                         //System.out.println("Server: " + fromServer);
                         if(fromServer.charAt(0) == '[' && current_request_number < performances_matrice.length){
                             performances_matrice[current_request_number][0] = System.currentTimeMillis() - time;
-                            System.out.println(performances_matrice[current_request_number][0]);
                             current_request_number++;
                             break;
                         }
@@ -108,7 +107,7 @@ public class KnockKnockClient {
                         }
                         else if (max_size != null && max_power != null) {
                             //int size = (int) Math.ceil(Math.random()*Integer.parseInt(max_size));
-                            int size = 10;
+                            int size = 50;
                             double[][] matrice = new double[size][size];
 
                             //int count = 2;
@@ -137,11 +136,9 @@ public class KnockKnockClient {
 
                             if(current_request_number > 0 && current_request_number < performances_matrice.length){
                                 performances_matrice[current_request_number][1] = System.currentTimeMillis() - time;
-                                System.out.println("MDR");
-                                System.out.println(performances_matrice[current_request_number][1]);
-
                             }
 
+                            performances_matrice[current_request_number][2] = power;
                             time = System.currentTimeMillis();
                             out.println(msg);
                         }
@@ -165,24 +162,42 @@ public class KnockKnockClient {
 
         //Now compute the means
         double response_time_mean = 0;
+        double response_time_min = Integer.MAX_VALUE;
+        double response_time_max = 0;
+
         double request_time_mean = 0;
+        double request_time_min = Integer.MAX_VALUE;
+        double request_time_max = 0;
+        double power_mean = 0;
         for(int i = 0; i < performances_matrice.length; i++){
             if(i>0)
             {
                 request_time_mean+= (double) performances_matrice[i][1];
-            }
-            if( i < performances_matrice.length-1){
+                if((double) performances_matrice[i][1] < request_time_min)
+                    request_time_min = (double) performances_matrice[i][1];
+                if((double) performances_matrice[i][1] > request_time_max)
+                    request_time_max = (double) performances_matrice[i][1];
 
-                response_time_mean+= (double) performances_matrice[i][0];
             }
+            response_time_mean+= (double) performances_matrice[i][0];
+                if((double) performances_matrice[i][0] < response_time_min)
+                    response_time_min = (double) performances_matrice[i][0];
+                if((double) performances_matrice[i][0] > response_time_max)
+                    response_time_max = (double) performances_matrice[i][0];
+
+            power_mean += (double) performances_matrice[i][2];
+
+
 
         }
 
         response_time_mean = response_time_mean/(performances_matrice.length-1);
         request_time_mean = request_time_mean/(performances_matrice.length-1);
+        power_mean = power_mean/performances_matrice.length;
 
-        System.out.println("Response time mean: "+response_time_mean);
-        System.out.println("Request time mean: "+request_time_mean);
+        System.out.println("ID:"+id+", p:"+power_mean);
+        System.out.println("Response time mean: "+response_time_mean+", min:"+response_time_min+", max:"+response_time_max);
+        System.out.println("Request time mean: "+request_time_mean+", min:"+request_time_min+", max:"+request_time_max);
 
     }
 }

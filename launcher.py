@@ -15,7 +15,9 @@ class Client(Thread):
 
 	def run(self):
 		try:
-			running_java = subprocess.run("java KnockKnockClient {} {} {}".format(self.ip, self.port, self.id),shell=True, stdout=subprocess.PIPE)
+			out = open("result_test", "a")
+			running_java = subprocess.run("java KnockKnockClient {} {} {}".format(self.ip, self.port, self.id),shell=True, stdout=out)
+			out.close
 		except OSError as e:
 			flag = "os error"
 			print("Execution failed:", e, file=stderr)
@@ -27,7 +29,7 @@ class Client(Thread):
 ipValue = sys.argv[1]
 portValue = sys.argv[2]
 threads = []
-for i in range(9):
+for i in range(20):
 	threads.append(Client(i, ipValue, portValue))
 	threads[i].start()
 
