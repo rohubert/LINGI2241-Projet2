@@ -48,7 +48,7 @@ public class KnockKnockProtocol {
     {
         String msg = null;
         if (state == WAITING) {
-            msg = "Knock! Knock!";
+            msg = "Now listening";
             state = SENTKNOCKKNOCK;
         }
         else if (state == SENTKNOCKKNOCK)

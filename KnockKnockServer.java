@@ -76,7 +76,7 @@ class Handler implements Runnable {
             while ((inputLine = in.readLine()) != null) {
                 System.out.println("received");
                 outputLine = kkp.processInput(inputLine);
-                System.out.println(outputLine);
+                //System.out.println(outputLine);
                 out.println(outputLine);
                 if (outputLine.equals("Bye."))
                     break;

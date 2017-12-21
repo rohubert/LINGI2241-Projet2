@@ -27,7 +27,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */ 
+ */
 
 import java.io.*;
 import java.net.*;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class KnockKnockClient {
     public static void main(String[] args) throws IOException {
-        
+
         if (args.length != 2 && args.length != 3) {
             System.err.println(
                 "Usage: java EchoClient <host name> <port number> <id client>");
@@ -48,10 +48,10 @@ public class KnockKnockClient {
         if(args.length == 3)
             id = args[2];
         boolean done = true;
-        
+
         //Now we initialise the variables for the performances mesurements
-        int current_request_number = 1;
-        int max_request_number = 11;
+        int current_request_number = 0;
+        int max_request_number = 10;
         long time = 0;
         //For each line, the first column will be the response time.
         //The second column will be the time between a first request and the following one.
@@ -66,7 +66,7 @@ public class KnockKnockClient {
                 //double t = Math.random()*10;
                 //long v = Math.round(t);
                 //System.out.println("time: "+t+", in long: "+v);
-                TimeUnit.SECONDS.sleep(5);
+                TimeUnit.SECONDS.sleep(1);
                 try (
                     Socket kkSocket = new Socket(hostName, portNumber);
                     PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
@@ -77,13 +77,14 @@ public class KnockKnockClient {
                         new BufferedReader(new InputStreamReader(System.in));
 
                     String fromServer;
-                    
+
                     String msg;
 
                     while ((fromServer = in.readLine()) != null) {
                         //System.out.println("Server: " + fromServer);
-                        if(fromServer.charAt(0) == '['){
+                        if(fromServer.charAt(0) == '[' && current_request_number < performances_matrice.length){
                             performances_matrice[current_request_number][0] = System.currentTimeMillis() - time;
+                            System.out.println(performances_matrice[current_request_number][0]);
                             current_request_number++;
                             break;
                         }
@@ -118,7 +119,7 @@ public class KnockKnockClient {
                             for(int i = 0; i < size; i++){
                                 for(int j = 0; j < size; j++){
                                     //matrice[i][j] = count;
-                                    
+
                                     matrice[i][j] = Math.ceil(Math.random()*10);
                                     if(j == size-1 && i == size-1){
                                         //End of Matrix
@@ -134,8 +135,10 @@ public class KnockKnockClient {
 
                             //System.out.println("Message : " + msg);
 
-                            if(current_request_number > 1 && current_request_number < performances_matrice.length){
+                            if(current_request_number > 0 && current_request_number < performances_matrice.length){
                                 performances_matrice[current_request_number][1] = System.currentTimeMillis() - time;
+                                System.out.println("MDR");
+                                System.out.println(performances_matrice[current_request_number][1]);
 
                             }
 
@@ -163,13 +166,20 @@ public class KnockKnockClient {
         //Now compute the means
         double response_time_mean = 0;
         double request_time_mean = 0;
-        for(int i = 0; i < performances_matrice.length-1; i++){
-            response_time_mean+= (double) performances_matrice[i][0];
-            request_time_mean+= (double) performances_matrice[i][1];
+        for(int i = 0; i < performances_matrice.length; i++){
+            if(i>0)
+            {
+                request_time_mean+= (double) performances_matrice[i][1];
+            }
+            if( i < performances_matrice.length-1){
+
+                response_time_mean+= (double) performances_matrice[i][0];
+            }
+
         }
 
-        response_time_mean = response_time_mean/performances_matrice.length-1;
-        request_time_mean = request_time_mean/performances_matrice.length-1;
+        response_time_mean = response_time_mean/(performances_matrice.length-1);
+        request_time_mean = request_time_mean/(performances_matrice.length-1);
 
         System.out.println("Response time mean: "+response_time_mean);
         System.out.println("Request time mean: "+request_time_mean);
