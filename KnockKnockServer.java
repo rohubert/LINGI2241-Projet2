@@ -27,22 +27,71 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-<<<<<<< HEAD
  */
-=======
- */ 
->>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
 
 import java.net.*;
 import java.io.*;
+import java.util.concurrent.*;
+
+class NetworkService implements Runnable {
+    private final ServerSocket serverSocket;
+    private final ExecutorService pool;
+
+    public NetworkService(int port)
+    throws IOException {
+        serverSocket = new ServerSocket(port);
+        pool = Executors.newFixedThreadPool(1);
+    }
+
+    public void run() { // run the service
+        try {
+            for (;;) {
+                pool.execute(new Handler(serverSocket.accept()));
+            }
+        } catch (IOException ex) {
+            pool.shutdown();
+        }
+    }
+}
+
+class Handler implements Runnable {
+    private final Socket socket;
+    Handler(Socket socket) { this.socket = socket; }
+    public void run() {
+        try (
+            PrintWriter out =
+                new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(socket.getInputStream()));
+        ) {
+
+            String inputLine, outputLine;
+
+            // Initiate conversation with client
+            KnockKnockProtocol kkp = new KnockKnockProtocol();
+            outputLine = kkp.processInput(null);
+
+            out.println(outputLine);
+
+            while ((inputLine = in.readLine()) != null) {
+                System.out.println("received");
+                outputLine = kkp.processInput(inputLine);
+                System.out.println(outputLine);
+                out.println(outputLine);
+                if (outputLine.equals("Bye."))
+                    break;
+            }
+        } catch (IOException e) {
+            System.out.println("connexion aborted");
+            System.out.println(e.getMessage());
+        }
+    }
+}
 
 public class KnockKnockServer {
-    public static void main(String[] args) throws IOException {
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
+    public static void main(String[] args) throws IOException {
+
         if (args.length != 1) {
             System.err.println("Usage: java KnockKnockServer <port number>");
             System.exit(1);
@@ -50,50 +99,37 @@ public class KnockKnockServer {
 
         int portNumber = Integer.parseInt(args[0]);
 
-<<<<<<< HEAD
-        try (
-=======
-        try ( 
->>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
-            ServerSocket serverSocket = new ServerSocket(portNumber);
-            Socket clientSocket = serverSocket.accept();
-            PrintWriter out =
-                new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(
-                new InputStreamReader(clientSocket.getInputStream()));
-        ) {
-<<<<<<< HEAD
 
-            String inputLine, outputLine;
+        NetworkService NS = new NetworkService(portNumber);
+        NS.run();
 
-=======
-        
-            String inputLine, outputLine;
-            
->>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
-            // Initiate conversation with client
-            KnockKnockProtocol kkp = new KnockKnockProtocol();
-            outputLine = kkp.processInput(null);
-            out.println(outputLine);
-
-            while ((inputLine = in.readLine()) != null) {
-<<<<<<< HEAD
-                System.out.println(inputLine);
-=======
->>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
-                outputLine = kkp.processInput(inputLine);
-                out.println(outputLine);
-                if (outputLine.equals("Bye."))
-                    break;
-            }
-        } catch (IOException e) {
-            System.out.println("Exception caught when trying to listen on port "
-                + portNumber + " or listening for a connection");
-            System.out.println(e.getMessage());
-        }
+        // try (
+        //     ServerSocket serverSocket = new ServerSocket(portNumber);
+        //     Socket clientSocket = serverSocket.accept();
+        //     PrintWriter out =
+        //         new PrintWriter(clientSocket.getOutputStream(), true);
+        //     BufferedReader in = new BufferedReader(
+        //         new InputStreamReader(clientSocket.getInputStream()));
+        // ) {
+        //
+        //     String inputLine, outputLine;
+        //
+        //     // Initiate conversation with client
+        //     KnockKnockProtocol kkp = new KnockKnockProtocol();
+        //     outputLine = kkp.processInput(null);
+        //     out.println(outputLine);
+        //
+        //     while ((inputLine = in.readLine()) != null) {
+        //         System.out.println(inputLine);
+        //         outputLine = kkp.processInput(inputLine);
+        //         out.println(outputLine);
+        //         if (outputLine.equals("Bye."))
+        //             break;
+        //     }
+        // } catch (IOException e) {
+        //     System.out.println("Exception caught when trying to listen on port "
+        //         + portNumber + " or listening for a connection");
+        //     System.out.println(e.getMessage());
+        // }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 5fa97e5346f88538c1d9a89446a80a1aa854a049
