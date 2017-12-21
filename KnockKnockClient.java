@@ -38,7 +38,7 @@ public class KnockKnockClient {
         
         if (args.length != 2 && args.length != 3) {
             System.err.println(
-                "Usage: java EchoClient <host name> <port number>");
+                "Usage: java EchoClient <host name> <port number> <id client>");
             System.exit(1);
         }
 
@@ -47,12 +47,20 @@ public class KnockKnockClient {
         String id = "";
         if(args.length == 3)
             id = args[2];
-        boolean firstTime = true;
+        boolean done = true;
         
+        //Now we initialise the variables for the performances mesurements
+        int current_request_number = 1;
+        int max_request_number = 10;
+        long time = 0;
+        //For each line, the first column will be the response time.
+        //The second column will be the time between a first request and the following one.
+        long[][] performances_matrice = new long[max_request_number][2];
+
         String max_size = "10";
         String max_power = "10";
 
-        while(true){
+        while(done && current_request_number < max_request_number){
             try{
                 //First, wait before trying to connect again and request a computation
                 double t = Math.random()*10;
@@ -74,10 +82,15 @@ public class KnockKnockClient {
 
                     while ((fromServer = in.readLine()) != null) {
                         System.out.println("Server: " + fromServer);
-                        if(fromServer.charAt(0) == '[')
+                        if(fromServer.charAt(0) == '['){
+                            performances_matrice[current_request_number][0] = System.currentTimeMillis() - time;
+                            current_request_number++;
                             break;
-                        if (fromServer.equals("Bye."))
+                        }
+                        if (fromServer.equals("Bye.")){
+                            done= false;
                             break;
+                        }
 
                         /*if(firstTime){
                             System.out.print("Please enter the max size of the matrice: ");
@@ -90,7 +103,6 @@ public class KnockKnockClient {
 
                         if(max_size.equals("") || max_power.equals("")){
                             System.out.println("One of the two values is wrong, retry...");
-                            firstTime = true;
                             break;
                         }
                         else if (max_size != null && max_power != null) {
@@ -122,6 +134,12 @@ public class KnockKnockClient {
 
                             System.out.println("Message : " + msg);
 
+                            if(current_request_number > 1 && current_request_number < performances_matrice.length){
+                                performances_matrice[current_request_number][1] = System.currentTimeMillis() - time;
+
+                            }
+
+                            time = System.currentTimeMillis();
                             out.println(msg);
                         }
                     }
@@ -141,5 +159,20 @@ public class KnockKnockClient {
                 System.out.println("Error: "+e);
             }
         }
+
+        //Now compute the means
+        double response_time_mean = 0;
+        double request_time_mean = 0;
+        for(int i = 0; i < performances_matrice.length; i++){
+            response_time_mean+= (double) performances_matrice[i][0];
+            request_time_mean+= (double) performances_matrice[i][1];
+        }
+
+        response_time_mean = response_time_mean/performances_matrice.length;
+        request_time_mean = request_time_mean/performances_matrice.length;
+
+        System.out.println("Response time mean: "+response_time_mean);
+        System.out.println("Request time mean: "+request_time_mean);
+
     }
 }
