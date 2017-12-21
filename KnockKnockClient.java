@@ -51,7 +51,7 @@ public class KnockKnockClient {
         
         //Now we initialise the variables for the performances mesurements
         int current_request_number = 1;
-        int max_request_number = 10;
+        int max_request_number = 11;
         long time = 0;
         //For each line, the first column will be the response time.
         //The second column will be the time between a first request and the following one.
@@ -63,10 +63,10 @@ public class KnockKnockClient {
         while(done && current_request_number < max_request_number){
             try{
                 //First, wait before trying to connect again and request a computation
-                double t = Math.random()*10;
-                long v = Math.round(t);
+                //double t = Math.random()*10;
+                //long v = Math.round(t);
                 //System.out.println("time: "+t+", in long: "+v);
-                TimeUnit.SECONDS.sleep(v);
+                TimeUnit.SECONDS.sleep(5);
                 try (
                     Socket kkSocket = new Socket(hostName, portNumber);
                     PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
@@ -81,7 +81,7 @@ public class KnockKnockClient {
                     String msg;
 
                     while ((fromServer = in.readLine()) != null) {
-                        System.out.println("Server: " + fromServer);
+                        //System.out.println("Server: " + fromServer);
                         if(fromServer.charAt(0) == '['){
                             performances_matrice[current_request_number][0] = System.currentTimeMillis() - time;
                             current_request_number++;
@@ -132,7 +132,7 @@ public class KnockKnockClient {
                                 }
                             }
 
-                            System.out.println("Message : " + msg);
+                            //System.out.println("Message : " + msg);
 
                             if(current_request_number > 1 && current_request_number < performances_matrice.length){
                                 performances_matrice[current_request_number][1] = System.currentTimeMillis() - time;
@@ -163,13 +163,13 @@ public class KnockKnockClient {
         //Now compute the means
         double response_time_mean = 0;
         double request_time_mean = 0;
-        for(int i = 0; i < performances_matrice.length; i++){
+        for(int i = 0; i < performances_matrice.length-1; i++){
             response_time_mean+= (double) performances_matrice[i][0];
             request_time_mean+= (double) performances_matrice[i][1];
         }
 
-        response_time_mean = response_time_mean/performances_matrice.length;
-        request_time_mean = request_time_mean/performances_matrice.length;
+        response_time_mean = response_time_mean/performances_matrice.length-1;
+        request_time_mean = request_time_mean/performances_matrice.length-1;
 
         System.out.println("Response time mean: "+response_time_mean);
         System.out.println("Request time mean: "+request_time_mean);
