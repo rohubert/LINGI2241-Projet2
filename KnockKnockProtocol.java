@@ -27,7 +27,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<<<<<<< HEAD
  */
+
 
 import java.net.*;
 import java.io.*;
@@ -54,15 +56,17 @@ public class KnockKnockProtocol {
             char[] b = theInput.toCharArray();
 
             String[] param = theInput.split(" ");
-            String n = param[0];
-            String p = param[1];
-            String m = param[2];
+            int id = Integer.parseInt(param[0]);
+            int size = Integer.parseInt(param[1]);
+            int power = Integer.parseInt(param[2]);
+            String m = param[3];
+
+            System.out.println("ID : " + id);
 
             //split the matrix in order to have a tab
             String[] matrice = m.split(",");
 
-            int size = Integer.parseInt(n);
-            int power = Integer.parseInt(p);
+
 
             double[][] real_matrice = convertTab(matrice, size);
 
