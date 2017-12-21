@@ -62,8 +62,10 @@ public class KnockKnockClient {
                 
                 String msg;
 
-                if ((fromServer = in.readLine()) != null) {
+                while ((fromServer = in.readLine()) != null) {
                     System.out.println("Server: " + fromServer);
+                    if(fromServer.charAt(0) == '[')
+                        break;
                     if (fromServer.equals("Bye."))
                         break;
 
@@ -85,6 +87,8 @@ public class KnockKnockClient {
 
                     if(max_size.equals("") || max_power.equals("")){
                         System.out.println("One of the two values is wrong, retry...");
+                        firstTime = true;
+                        break;
                     }
                     else if (max_size != null && max_power != null) {
                         int size = (int) Math.ceil(Math.random()*Integer.parseInt(max_size));
@@ -111,6 +115,8 @@ public class KnockKnockClient {
 
                             }
                         }
+
+                        System.out.println("Message : " + msg);
 
                         out.println(msg);
                     }
