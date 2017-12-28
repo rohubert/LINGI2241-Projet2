@@ -15,7 +15,7 @@ class Client(Thread):
 
 	def run(self):
 		try:
-			out = open("result_test", "a")
+			out = open("result_bandwidth_1000", "a")
 			running_java = subprocess.run("java KnockKnockClient {} {} {}".format(self.ip, self.port, self.id),shell=True, stdout=out)
 			out.close
 		except OSError as e:

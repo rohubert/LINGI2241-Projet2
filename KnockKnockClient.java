@@ -34,6 +34,9 @@ import java.net.*;
 import java.util.concurrent.TimeUnit;
 
 public class KnockKnockClient {
+    public static final int MAX_SIZE = 50;
+    public static final int MAX_POWER = 20;
+    public static final long AVERAGE_INTER_REQUEST_TIME = 250;
     public static void main(String[] args) throws IOException {
 
         if (args.length != 2 && args.length != 3) {
@@ -55,15 +58,17 @@ public class KnockKnockClient {
         long time = 0;
         //For each line, the first column will be the response time.
         //The second column will be the time between a first request and the following one.
-        long[][] performances_matrice = new long[max_request_number][3];
+        //The third one is for the power computation
+        //The fourth is for the server computation time
+        long[][] performances_matrice = new long[max_request_number][4];
 
-        String max_size = "50";
-        String max_power = "20";
+        String max_size = ""+MAX_SIZE;
+        String max_power = ""+MAX_POWER;
 
         while(done && current_request_number < max_request_number){
             try{
                 //First, wait before trying to connect again and request a computation
-                double t = Math.random()*500;
+                double t = Math.random()*AVERAGE_INTER_REQUEST_TIME*2;
                 long v = Math.round(t);
                 //System.out.println("time: "+t+", in long: "+v);
                 TimeUnit.MILLISECONDS.sleep(v);
@@ -84,6 +89,8 @@ public class KnockKnockClient {
                         //System.out.println("Server: " + fromServer);
                         if(fromServer.charAt(0) == '[' && current_request_number < performances_matrice.length){
                             performances_matrice[current_request_number][0] = System.currentTimeMillis() - time;
+                            long elapsed_time_server = Long.parseLong(fromServer.split(" ")[1]);
+                            performances_matrice[current_request_number][3] = elapsed_time_server;
                             current_request_number++;
                             break;
                         }
@@ -169,6 +176,10 @@ public class KnockKnockClient {
         double request_time_min = Integer.MAX_VALUE;
         double request_time_max = 0;
         double power_mean = 0;
+
+        double server_time_mean = 0;
+        double server_time_min = Integer.MAX_VALUE;
+        double server_time_max = 0;
         for(int i = 0; i < performances_matrice.length; i++){
             if(i>0)
             {
@@ -187,17 +198,23 @@ public class KnockKnockClient {
 
             power_mean += (double) performances_matrice[i][2];
 
-
+            server_time_mean+= (double) performances_matrice[i][3];
+                if((double) performances_matrice[i][3] < server_time_min)
+                    server_time_min = (double) performances_matrice[i][3];
+                if((double) performances_matrice[i][3] > server_time_max)
+                    server_time_max = (double) performances_matrice[i][3];
 
         }
 
         response_time_mean = response_time_mean/(performances_matrice.length-1);
         request_time_mean = request_time_mean/(performances_matrice.length-1);
         power_mean = power_mean/performances_matrice.length;
+        server_time_mean = server_time_mean/(performances_matrice.length-1);
 
         System.out.println("ID:"+id+", p:"+power_mean);
         System.out.println("Response time mean: "+response_time_mean+", min:"+response_time_min+", max:"+response_time_max);
         System.out.println("Request time mean: "+request_time_mean+", min:"+request_time_min+", max:"+request_time_max);
-
+        System.out.println("Server computation time mean: "+server_time_mean+", min:"+server_time_min+", max:"+server_time_max);
+        System.out.println("Network time: "+(response_time_mean-server_time_mean));
     }
 }
