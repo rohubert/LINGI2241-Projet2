@@ -45,17 +45,24 @@ public class KnockKnockClient {
             System.exit(1);
         }
 
-        String hostName = args[0];
-        int portNumber = Integer.parseInt(args[1]);
-        String id = "";
+        // First get the parameters: IP, PORT and ID of the client (not mandatory)
+        String hostName = args[0];	// The IP address of the server
+        int portNumber = Integer.parseInt(args[1]);	// The PORT number on which we communicate
+        String id = "";	// The ID of this client
         if(args.length == 3)
             id = args[2];
-        boolean done = true;
 
-        //Now we initialise the variables for the performances mesurements
+        boolean done = true; // True while the server keep the connection up
+
+        // Initialization of the variables for computing the total execution time of this client 
+        boolean firstTime = true;	//True in order to launch the counter, false when launched
+        long executionTime = 0;
+
+        // Now we initialise the variables for the performances mesurements
         int current_request_number = 0;
-        int max_request_number = 10;
-        long time = 0;
+        int max_request_number = 10;	// The number of request this client have to send before finishing
+        long time = 0;	// This variable will allow us to compute the Request and Respond times
+
         //For each line, the first column will be the response time.
         //The second column will be the time between a first request and the following one.
         //The third one is for the power computation
@@ -65,13 +72,15 @@ public class KnockKnockClient {
         String max_size = ""+MAX_SIZE;
         String max_power = ""+MAX_POWER;
 
+        // While ther server keep the connection up and the client hasn't received a response to is 10 requests
         while(done && current_request_number < max_request_number){
             try{
-                //First, wait before trying to connect again and request a computation
+                // First, wait before trying to connect again and request a computation
                 double t = Math.random()*AVERAGE_INTER_REQUEST_TIME*2;
                 long v = Math.round(t);
-                //System.out.println("time: "+t+", in long: "+v);
                 TimeUnit.MILLISECONDS.sleep(v);
+
+                // Then try to connect to the server
                 try (
                     Socket kkSocket = new Socket(hostName, portNumber);
                     PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true);
@@ -86,45 +95,48 @@ public class KnockKnockClient {
                     String msg;
 
                     while ((fromServer = in.readLine()) != null) {
-                        //System.out.println("Server: " + fromServer);
+                    	// If we just connect to the server for the first time, launch the excution time counter
+                    	if(firstTime){
+                    		executionTime = System.currentTimeMillis();
+                    		firstTime = false;
+                    	}
+
+                    	// Check if the server respond to our request by sending the computed matrice
                         if(fromServer.charAt(0) == '[' && current_request_number < performances_matrice.length){
+                        	// Get the respond time for this request
                             performances_matrice[current_request_number][0] = System.currentTimeMillis() - time;
+                            // Get the Service time computed by the server
                             long elapsed_time_server = Long.parseLong(fromServer.split(" ")[1]);
                             performances_matrice[current_request_number][3] = elapsed_time_server;
                             current_request_number++;
                             break;
                         }
+                        // Check if the server is ending the connection
                         if (fromServer.equals("Bye.")){
                             done= false;
                             break;
                         }
 
-                        /*if(firstTime){
-                            System.out.print("Please enter the max size of the matrice: ");
-                            max_size = stdIn.readLine();
-
-                            System.out.print("Please enter the max difficulty: ");
-                            max_power = stdIn.readLine();
-                            firstTime = false;
-                        }*/
-
-                        if(max_size.equals("") || max_power.equals("")){
-                            System.out.println("One of the two values is wrong, retry...");
-                            break;
-                        }
-                        else if (max_size != null && max_power != null) {
-                            //int size = (int) Math.ceil(Math.random()*Integer.parseInt(max_size));
-                            int size = 50;
+                        if (max_size != null && max_power != null) {
+                        	// Compute a squared matrice of size MAX_SIZE containing random values between 0 and 10
+                            // And create a String version of the matrice that will be send to the server
+                            int size = MAX_SIZE;
                             double[][] matrice = new double[size][size];
 
-                            //int count = 2;
-                            //currently we don't take 0 and 1 into account for the power value
-                            int power = (int) Math.ceil(Math.random()*(Integer.parseInt(max_power)-1)+1);
+                            // We don't take 0 and 1 into account for the power value
+                            int power = (int) Math.ceil(Math.random()*(MAX_POWER-1)+1);
 
+                            // The Request has to contained a message that has the following format:
+                            // "ID SIZE POWER Matrice" where "Matrice" is the String version of the matrice.
+                            // The Matrice 
+                            //
+                            //	(1	2)
+                            //	(3	4)
+                            //
+                            // will have the following format: "1,2,3,4" in the request message.
                             msg = id+" "+size+" "+power+" ";
                             for(int i = 0; i < size; i++){
                                 for(int j = 0; j < size; j++){
-                                    //matrice[i][j] = count;
 
                                     matrice[i][j] = Math.ceil(Math.random()*10);
                                     if(j == size-1 && i == size-1){
@@ -134,22 +146,23 @@ public class KnockKnockClient {
                                     else{
                                         msg = msg+matrice[i][j]+",";
                                     }
-                                    //count++;
-
                                 }
                             }
 
-                            //System.out.println("Message : " + msg);
-
                             if(current_request_number > 0 && current_request_number < performances_matrice.length){
+                            	// Save the Request time for the precedent request
                                 performances_matrice[current_request_number][1] = System.currentTimeMillis() - time;
                             }
 
+                        	// Save the computed power for this request
                             performances_matrice[current_request_number][2] = power;
+
+                            // Launch the timer for the Response Time and for the Request Time
                             time = System.currentTimeMillis();
                             out.println(msg);
                         }
                     }
+
                 } catch (UnknownHostException e) {
                     System.err.println("Don't know about host " + hostName);
                     System.exit(1);
@@ -166,6 +179,9 @@ public class KnockKnockClient {
                 System.out.println("Error: "+e);
             }
         }
+
+        // End of the communication, compute the execution time
+        executionTime = System.currentTimeMillis() - executionTime;
 
         //Now compute the means
         double response_time_mean = 0;
@@ -211,10 +227,13 @@ public class KnockKnockClient {
         power_mean = power_mean/performances_matrice.length;
         server_time_mean = server_time_mean/(performances_matrice.length-1);
 
+        // Finally print the data for this client
         System.out.println("ID:"+id+", p:"+power_mean);
         System.out.println("Response time mean: "+response_time_mean+", min:"+response_time_min+", max:"+response_time_max);
         System.out.println("Request time mean: "+request_time_mean+", min:"+request_time_min+", max:"+request_time_max);
         System.out.println("Server computation time mean: "+server_time_mean+", min:"+server_time_min+", max:"+server_time_max);
         System.out.println("Network time: "+(response_time_mean-server_time_mean));
+        System.out.println("Execution time: "+(executionTime));
+        
     }
 }
