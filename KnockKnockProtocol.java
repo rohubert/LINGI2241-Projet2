@@ -61,12 +61,10 @@ public class KnockKnockProtocol {
             int power = Integer.parseInt(param[2]);
             String m = param[3];
 
-            System.out.println("ID : " + id);
+            //System.out.println("ID : " + id);
 
             //split the matrix in order to have a tab
             String[] matrice = m.split(",");
-
-
 
             double[][] real_matrice = convertTab(matrice, size);
 

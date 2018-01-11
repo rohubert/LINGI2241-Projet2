@@ -63,6 +63,8 @@ class Handler implements Runnable {
                 new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(socket.getInputStream()));
+            Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream("result.txt"), "utf-8"));
         ) {
 
             String inputLine, outputLine;
@@ -73,11 +75,24 @@ class Handler implements Runnable {
 
             out.println(outputLine);
 
+            //time variables
+            long time;
+            long elapsed_time;
+
             while ((inputLine = in.readLine()) != null) {
-                System.out.println("received");
+                //parsing the id
+                char[] b = inputLine.toCharArray();
+                String[] param = inputLine.split(" ");
+                int id = Integer.parseInt(param[0]);
+
+                //measuring the cpu time and adding to the table
+                time = System.currentTimeMillis();
                 outputLine = kkp.processInput(inputLine);
+                elapsed_time = System.currentTimeMillis() - time;
+                //System.out.println(outputLine + " " + elapsed_time);
                 //System.out.println(outputLine);
-                out.println(outputLine);
+                out.println(outputLine + " " + elapsed_time);
+                //System.out.println("time : "+elapsed_time);
                 if (outputLine.equals("Bye."))
                     break;
             }
