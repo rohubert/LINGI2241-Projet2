@@ -48,7 +48,7 @@ public class KnockKnockClient {
         // First get the parameters: IP, PORT and ID of the client (not mandatory)
         String hostName = args[0];	// The IP address of the server
         int portNumber = Integer.parseInt(args[1]);	// The PORT number on which we communicate
-        String id = "";	// The ID of this client
+        String id = "0";	// The ID of this client
         if(args.length == 3)
             id = args[2];
 
